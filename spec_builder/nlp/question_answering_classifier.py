@@ -52,18 +52,26 @@ class QuestionAnsweringClassifier:
         input_ids = encoding['input_ids'].to(self.device)
         attention_mask = encoding['attention_mask'].to(self.device)
 
+        passage_start_pos = input_ids.tolist()[0].index(self.tokenizer.sep_token_id) + 1
+        passage_end_pos = self.max_length - 1
+        if 0 in attention_mask.tolist()[0]:
+            passage_end_pos = attention_mask.tolist()[0].index(0) - 1
+
         answer_start_scores, answer_end_scores = self.model(input_ids, attention_mask)
         answer_start = torch.argmax(answer_start_scores)
         answer_end = torch.argmax(answer_end_scores) + 1
 
-        raw_tokens = self.tokenizer.convert_ids_to_tokens(input_ids.tolist()[0][answer_start:answer_end])
-        if len(raw_tokens) == 1 or (len(raw_tokens) >= 1 and raw_tokens[0] == self.tokenizer.cls_token):
-            return ''
+        if answer_start < passage_start_pos:
+            answer_start = passage_start_pos
 
-        # In some cases, the whole question is returned - return after the [SEP] token
-        sep_token_index = next(
-            (index for index, token in enumerate(raw_tokens) if token == self.tokenizer.sep_token), -1)
-        raw_tokens = raw_tokens[:sep_token_index] if sep_token_index != -1 else raw_tokens
+        if answer_end < passage_start_pos:
+            answer_end = passage_start_pos
+        elif answer_end > passage_end_pos:
+            answer_end = passage_end_pos
+
+        raw_tokens = self.tokenizer.convert_ids_to_tokens(input_ids.tolist()[0][answer_start:answer_end])
+        if len(raw_tokens) == 0 or (len(raw_tokens) == 1 and self.tokenizer.cls_token):
+            return ''
 
         return self.tokenizer.convert_tokens_to_string(raw_tokens)
 
