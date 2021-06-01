@@ -7,7 +7,7 @@ class BuilderRepository:
 
     def __init__(self, db):
         self.db = db
-        self.__create_table()
+        #self.__create_table()
 
     def __create_table(self):
         template = """

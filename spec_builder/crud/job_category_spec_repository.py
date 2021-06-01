@@ -24,7 +24,7 @@ class JobCategorySpecRepository:
                 percentage_activated NUMERIC (5, 2),
                 
                 PRIMARY KEY (job_id, category_id, spec_id),
-                FOREIGN KEY (job_id) REFERENCES lisa.builder_job (id),
+                FOREIGN KEY (job_id) REFERENCES lisa.spec_builder_job (id),
                 FOREIGN KEY (category_id) REFERENCES lisa.category (id),
                 FOREIGN KEY (spec_id) REFERENCES lisa.spec (id)
             );    
