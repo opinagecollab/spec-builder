@@ -13,10 +13,10 @@ class JobRepository:
     def __create_table(self):
         template = """
         
-            CREATE TABLE IF NOT EXISTS lisa.builder_job(
+            CREATE TABLE IF NOT EXISTS lisa.spec_builder_job(
             
                 id SERIAL PRIMARY KEY,
-                builder_id INTEGER NOT NULL,
+                builder_id CHARACTER VARYING NOT NULL,
                 status INTEGER NOT NULL DEFAULT 0,
                 
                 FOREIGN KEY (builder_id) REFERENCES lisa.builder (id)
@@ -30,9 +30,9 @@ class JobRepository:
     def find_active_job(self):
         query_template = f"""
             
-            SELECT j.id, j.status FROM lisa.builder_job AS j 
+            SELECT j.id, j.status FROM lisa.spec_builder_job AS j 
             WHERE 
-                j.builder_id = { self.builder_id } AND 
+                j.builder_id = '{ self.builder_id }' AND 
                 j.status <> { JobStatus.FINISHED.value } 
 
         """
@@ -51,7 +51,7 @@ class JobRepository:
     def create_job(self):
         query_template = """
             
-            INSERT INTO lisa.builder_job(builder_id, status) VALUES(%s, %s)
+            INSERT INTO lisa.spec_builder_job(builder_id, status) VALUES(%s, %s)
             RETURNING id, status
             
         """
@@ -63,7 +63,7 @@ class JobRepository:
     def update_job_status(self, job_id, new_status):
         query_template = """
             
-            UPDATE lisa.builder_job
+            UPDATE lisa.spec_builder_job
             SET status=%s 
             WHERE id=%s
             RETURNING id, status

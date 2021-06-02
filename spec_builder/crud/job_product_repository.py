@@ -20,7 +20,7 @@ class JobProductRepository:
                 tenant_id VARCHAR NOT NULL,
                 
                 PRIMARY KEY (job_id, sku, tenant_id),
-                FOREIGN KEY (job_id) REFERENCES lisa.builder_job (id),
+                FOREIGN KEY (job_id) REFERENCES lisa.spec_builder_job (id),
                 FOREIGN KEY (sku, tenant_id) REFERENCES lisa.product (sku, tenant_id)
             );
         
